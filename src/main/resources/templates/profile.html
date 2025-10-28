@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Profile</title>
+</head>
+<body>
+<div th:insert="~{parts/header :: header}"></div>
+<form method="post" th:action="@{/profile}">
+    <label>
+        Username:
+        <input type="text"
+               name="username"
+               placeholder="Username"
+               th:value="${session.user.getUsername()}"
+               minlength="3"
+               maxlength="30"
+               required/>
+    </label>
+    <label>
+        New Password:
+        <input type="password"
+               name="password"
+               minlength="3"
+               maxlength="30"
+               required/>
+    </label>
+    <button type="submit">Change username & password</button>
+</form>
+<div th:if="${success}" th:text="${success}" style="color: green"></div>
+<div th:if="${error}"   th:text="${error}" style="color: red"></div>
+<div>
+    <h3>Current information:</h3>
+    <p>
+        <strong>User ID:</strong>
+        <span th:text="${session.user.getId()}"></span>
+    </p>
+    <p>
+        <strong>Username:</strong>
+        <span th:text="${session.user.getUsername()}"></span>
+    </p>
+</div>
+<div>
+    <h4>Delete your profile:</h4>
+    <form method="post" th:action="@{/profile/delete}">
+        <label>
+            If you really want to delete your profile, you must write "Delete" in this form:
+            <input type="text" name="confirmation" required>
+        </label>
+        <button type="submit">Delete user</button>
+    </form>
+</div>
+</body>
+</html>

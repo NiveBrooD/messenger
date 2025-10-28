@@ -1,0 +1,33 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <changeSet id="1759066842592-1-add-user_chat" author="Ramis">
+<!--        <preConditions onFail="MARK_RAN">-->
+<!--            <not>-->
+<!--                <tableExists tableName="user_chat"/>-->
+<!--            </not>-->
+<!--        </preConditions>-->
+        <createTable tableName="user_chat">
+            <column name="chat_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addPrimaryKey tableName="user_chat"
+                       columnNames="user_id, chat_id"
+                       constraintName="user_chat_pk"/>
+        <addForeignKeyConstraint baseTableName="user_chat" baseColumnNames="chat_id"
+                                 constraintName="user_chat_chat_id_fk"
+                                 referencedTableName="chats"
+                                 referencedColumnNames="id"/>
+        <addForeignKeyConstraint baseTableName="user_chat" baseColumnNames="user_id"
+                                 constraintName="user_chat_user_id_fk"
+                                 referencedTableName="users"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+</databaseChangeLog>

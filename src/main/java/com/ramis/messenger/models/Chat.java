@@ -1,11 +1,10 @@
 package com.ramis.messenger.models;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -17,7 +16,10 @@ public class Chat {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
+
+    @Column(name = "name", length = 155, nullable = false)
+    private String name;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
@@ -25,8 +27,8 @@ public class Chat {
             joinColumns = @JoinColumn(name = "chat_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    private List<User> users;
+    private List<User> users = new ArrayList<>();
 
     @OneToMany(mappedBy = "chat", fetch = FetchType.LAZY)
-    private List<Message> messages;
+    private List<Message> messages = new ArrayList<>();
 }

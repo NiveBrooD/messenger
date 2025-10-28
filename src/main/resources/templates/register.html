@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+</head>
+<body>
+<div th:insert="~{parts/header :: header}"></div>
+<h2>Registration</h2>
+<form method="post" th:action="@{/register}">
+    <label>
+        Ваше никнейм:
+        <input type="text" name="username" placeholder="Username" minlength="3" maxlength="15" required>
+    </label>
+    <label>
+        Придумайте пароль:
+        <input type="password" name="password" placeholder="Password" minlength="3" maxlength="15" required>
+    </label>
+    <button type="submit">Register</button>
+</form>
+<div th:if="${error}" th:text="${error}" style="color: red;"></div>
+</body>
+</html>

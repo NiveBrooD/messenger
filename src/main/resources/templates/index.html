@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Index</title>
+</head>
+<body>
+<div th:insert="~{parts/header :: header}"></div>
+
+<div th:if="${error}"
+     th:text="${error}"
+     style="color: red"></div>
+
+<h2>Мои чаты</h2>
+
+<div th:if="${chats}">
+    <div th:each="chatPreview : ${chats}">
+        <div>
+            <h3>Название чата <span th:text="${chatPreview.name}"></span></h3>
+            <p th:text="${chatPreview.lastMessageSender} + ': '"> <span th:text="${chatPreview.lastMessagePreview}"></span></p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

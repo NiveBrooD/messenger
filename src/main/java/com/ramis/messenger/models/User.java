@@ -3,7 +3,9 @@ package com.ramis.messenger.models;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
+
 
 @Getter
 @Setter
@@ -18,10 +20,10 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "username", nullable = false,unique = true)
+    @Column(name = "username", nullable = false, unique = true,  length = 30)
     private String username;
 
-    @Column(name = "password", nullable = false)
+    @Column(name = "password", nullable = false, length = 30)
     private String password;
 
     @ManyToMany(fetch = FetchType.LAZY)
@@ -30,10 +32,5 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "chat_id")
     )
-    private List<Chat> chats;
-
-    public User(String username, String password) {
-        this.username = username;
-        this.password = password;
-    }
+    private List<Chat> chats = new ArrayList<>();
 }

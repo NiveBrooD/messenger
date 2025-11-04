@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 public interface ChatRepository extends JpaRepository<Chat,Long> {
 
 
-    @Query("select c from Chat c join fetch c.users where c.id = :id")
+    @Query("select c from Chat c join fetch c.users left join fetch c.creator where c.id = :id")
     Optional<Chat> getChatById(@Param("id") Long chatId);
 
     @Query("select c from Chat c join fetch c.messages where c.id = :id")

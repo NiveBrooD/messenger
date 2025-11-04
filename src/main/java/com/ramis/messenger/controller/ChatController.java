@@ -11,10 +11,7 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
@@ -43,10 +40,10 @@ public class ChatController {
     }
 
     @PostMapping("/chat/{chatId}")
-    public String createChat(@PathVariable Long chatId,
-                             @RequestParam String message,
-                             HttpSession session,
-                             RedirectAttributes redirectAttributes) {
+    public String sendMessage(@PathVariable Long chatId,
+                              @RequestParam String message,
+                              HttpSession session,
+                              RedirectAttributes redirectAttributes) {
         User user = (User) session.getAttribute("user");
         if (user == null) {
             redirectAttributes.addFlashAttribute("error", "You need to be logged in");
@@ -127,6 +124,18 @@ public class ChatController {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/";
         }
+    }
 
+    @PostMapping("/chat/{id}/delete")
+    public String deleteChat(@PathVariable Long id,
+                             RedirectAttributes redirectAttributes) {
+        try {
+            chatService.delete(id);
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/";
+        }
+        redirectAttributes.addFlashAttribute("message", "Chat deleted");
+        return "redirect:/";
     }
 }

@@ -29,6 +29,19 @@
             </form>
         </div>
     </div>
+    <div> Участники:
+        <div th:each="user : ${chat.users}">
+            <span th:text="${user.username}"></span>
+        </div>
+    </div>
+</div>
+
+<div th:if="${chat.creator != null}">
+    <div th:if="${session.user.username == chat.creator.username}">
+        <form th:action="@{'/chat/' + ${chat.id} + '/delete'}" method="post">
+            <button type="submit">Удалить чат</button>
+        </form>
+    </div>
 </div>
 </body>
 </html>

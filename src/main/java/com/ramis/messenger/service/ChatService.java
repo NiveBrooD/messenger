@@ -23,6 +23,7 @@ public class ChatService {
     public Chat createChat(User user, String chatName) {
         Chat chat = new Chat();
         chat.setName(chatName);
+        chat.setCreator(user);
         chat.getUsers().add(user);
         return chatRepository.save(chat);
     }
@@ -47,5 +48,12 @@ public class ChatService {
             throw new EntityNotFoundException("Any chats with name " + chatName + " not found");
         }
         return chats;
+    }
+
+    public void delete(Long id) {
+        if (id == null) {
+            throw new RuntimeException("ID cannot be null");
+        }
+        chatRepository.deleteById(id);
     }
 }

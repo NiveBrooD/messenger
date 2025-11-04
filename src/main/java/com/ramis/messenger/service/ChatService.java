@@ -1,8 +1,10 @@
 package com.ramis.messenger.service;
 
 import com.ramis.messenger.models.Chat;
+import com.ramis.messenger.models.Message;
 import com.ramis.messenger.models.User;
 import com.ramis.messenger.repository.ChatRepository;
+import com.ramis.messenger.repository.MessageRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,11 +17,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ChatService {
     private final ChatRepository chatRepository;
+    private final MessageRepository messageRepository;
 
 
     public Chat createChat(User user, String chatName) {
         Chat chat = new Chat();
-        chat.setName(chatName.trim());
+        chat.setName(chatName);
         chat.getUsers().add(user);
         return chatRepository.save(chat);
     }
@@ -36,5 +39,13 @@ public class ChatService {
     public Chat getChatWithUsers(Long chatId) {
         return chatRepository.getChatById(chatId).orElseThrow(
                 () -> new EntityNotFoundException("Chat with id " + chatId + " not found"));
+    }
+
+    public List<Chat> getChatsByName(String chatName) {
+        List<Chat> chats = chatRepository.findChatsByNameIgnoreCase(chatName).toList();
+        if (chats.isEmpty()) {
+            throw new EntityNotFoundException("Any chats with name " + chatName + " not found");
+        }
+        return chats;
     }
 }

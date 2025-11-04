@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Repository
 public interface ChatRepository extends JpaRepository<Chat,Long> {
@@ -14,4 +15,9 @@ public interface ChatRepository extends JpaRepository<Chat,Long> {
 
     @Query("select c from Chat c join fetch c.users where c.id = :id")
     Optional<Chat> getChatById(@Param("id") Long chatId);
+
+    @Query("select c from Chat c join fetch c.messages where c.id = :id")
+    Optional<Chat> getChatByIdFetchMessages(@Param("id") Long chatId);
+
+    Stream<Chat> findChatsByNameIgnoreCase(@Param("name") String name);
 }

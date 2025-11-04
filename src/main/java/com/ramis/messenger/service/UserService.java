@@ -29,22 +29,22 @@ public class UserService {
     private final MessageRepository messageRepository;
     private final ChatRepository chatRepository;
 
-    
+
     public Collection<User> getAll() {
         return userRepository.findAll();
     }
 
-    
+
     public User get(Long id) {
         return userRepository.getReferenceById(id);
     }
 
-    
+
     public User save(User user) {
         return userRepository.save(user);
     }
 
-    
+
     public User updateUsernameAndPass(User user, Long userId) {
         User userDB = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found"));
         if (Objects.nonNull(userDB.getUsername()) && StringUtils.hasText(user.getUsername())) {
@@ -63,24 +63,24 @@ public class UserService {
         return userRepository.save(userDB);
     }
 
-    
+
     public void delete(User user) {
         userRepository.delete(user);
     }
 
-    
+
     public User getByUsernameAndPassword(String username, String password) {
         return userRepository.findByUsernameAndPassword(username, password).orElseThrow(
                 () -> new EntityNotFoundException("User not found")
         );
     }
 
-    
+
     public List<User> saveAll(Iterable<User> entities) {
         return userRepository.saveAll(entities);
     }
 
-    
+
     public void registerUser(UserRegistrationTo userRegistrationTo) {
         if (userRepository.existsByUsername(userRegistrationTo.getUsername())) {
             throw new RuntimeException("Username already exists: " + userRegistrationTo.getUsername());
@@ -116,22 +116,18 @@ public class UserService {
     }
 
     private ChatPreview toChatPreview(Chat chat) {
-        List<Message> content = messageRepository
-                .getMessagesForChat(
-                        chat.getId(),
-                        PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "createdAt")))
-                .getContent();
-        String lastMessage;
         String lastMessageSender;
+        String lastMessageText;
         try {
-            Message message = content.get(0);
-            lastMessage = message.getText();
-            lastMessageSender = message.getSender().getUsername();
+            Message lastMessage = messageRepository.findLastMessageByChatId(chat.getId())
+                    .orElseThrow(() -> new EntityNotFoundException("Message not found"));
+            lastMessageText = lastMessage.getText();
+            lastMessageSender = lastMessage.getSender().getUsername();
         } catch (IndexOutOfBoundsException e) {
-            lastMessage = "";
+            lastMessageText = "No messages yet";
             lastMessageSender = "";
         }
-        return new ChatPreview(chat.getId(), chat.getName(), lastMessage,lastMessageSender);
+        return new ChatPreview(chat.getId(), chat.getName(), lastMessageText, lastMessageSender);
     }
 
 }

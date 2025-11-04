@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Search Chat</title>
+</head>
+<body>
+<div th:each="chat : ${chats}">
+    <form method="post" th:action="@{/chat/join/{id}(id=${chat.id})}">
+        <a th:text="${chat.name}"></a>
+        <a>Создатель:
+            <span th:text="${chat.users[0].username}"></span>
+        </a>
+        <button type="submit">Вступить</button>
+    </form>
+</div>
+</body>
+</html>

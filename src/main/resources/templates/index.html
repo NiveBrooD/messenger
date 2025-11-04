@@ -7,18 +7,33 @@
 <body>
 <div th:insert="~{parts/header :: header}"></div>
 
-<div th:if="${error}"
-     th:text="${error}"
-     style="color: red"></div>
+<div th:if="${message}">
+    <h1 th:text="${message}"></h1>
+</div>
+<div th:if="${error}" style="color: red">
+    <div th:text="${error}"></div>
+</div>
+
+<div> Поиск чатов
+    <form th:action="@{/chat/search}" method="post">
+        <label> Название чата:
+            <input type="text" name="name" required>
+        </label>
+        <button type="submit">Поиск</button>
+    </form>
+</div>
+<div>
+    <a th:href="@{/chat/create}">Создать чат</a>
+</div>
 
 <h2>Мои чаты</h2>
 
 <div th:if="${chats}">
     <div th:each="chatPreview : ${chats}">
-        <div>
-            <h3>Название чата <span th:text="${chatPreview.name}"></span></h3>
-            <p th:text="${chatPreview.lastMessageSender} + ': '"> <span th:text="${chatPreview.lastMessagePreview}"></span></p>
-        </div>
+        <a th:href="@{'chat/'+${chatPreview.id}}">
+            <h3 th:text="${chatPreview.name}"></h3>
+            <span th:text="${chatPreview.lastMessageSender + ': ' + chatPreview.lastMessagePreview}"></span>
+        </a>
     </div>
 </div>
 </body>

@@ -22,23 +22,15 @@ public class HomeController {
     public String home(Model model,
                        HttpSession session) {
         User user = (User) session.getAttribute("user");
-        Collection<ChatPreview> chatsPreview = userService.getChats(user);
-        if (!chatsPreview.isEmpty()) {
-            model.addAttribute("chats", chatsPreview);
+        if (user != null) {
+            Collection<ChatPreview> chatsPreview = userService.getChats(user);
+            if (!chatsPreview.isEmpty()) {
+                model.addAttribute("chats", chatsPreview);
+            }
+        } else {
+            model.addAttribute("message", "Welcome! First of all u need to Login or Sign up!");
         }
         return "index";
     }
 
-    @PostMapping("/chat/join")
-    public String joinToChat(HttpSession session,
-                             @RequestParam Long chatId) {
-        User user = (User) session.getAttribute("user");
-        try {
-            userService.addChatForUser(user.getId(), chatId);
-        } catch (RuntimeException e) {
-            //TODO: add redirectFlashAttribute("error") or smth else
-            throw e;
-        }
-        return "redirect:/";
-    }
 }

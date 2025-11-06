@@ -1,0 +1,23 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <changeSet id="1762328300686-1" author="Ramis">
+        <addForeignKeyConstraint baseTableName="chats"
+                                 baseColumnNames="creator_id"
+                                 constraintName="chats_creator_id_fk"
+                                 referencedTableName="users"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+    <changeSet id="1762331330138-1" author="Ramis">
+        <dropForeignKeyConstraint baseTableName="chats" constraintName="chats_creator_id_fk"/>
+        <addForeignKeyConstraint baseTableName="chats"
+                                 baseColumnNames="creator_id"
+                                 constraintName="chats_creator_id_fk"
+                                 referencedTableName="users"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+    </changeSet>
+</databaseChangeLog>

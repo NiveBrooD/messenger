@@ -11,5 +11,7 @@
     <include file="db/history/2025/09/29-01-add-user-data.xml" relativeToChangelogFile="false"/>
     <include file="db/history/2025/10/23-01-add-filed-name-to-chats.xml" relativeToChangelogFile="false"/>
     <include file="db/history/2025/11/4-01-add-creator-column-to-chats.xml" relativeToChangelogFile="false"/>
+    <include file="db/history/2025/11/5-01-add-reference-for-column-creator_id.xml" relativeToChangelogFile="false"/>
+    <include file="db/history/2025/11/5-02-change-fk-for-messages.xml" relativeToChangelogFile="false"/>
 
 </databaseChangeLog>

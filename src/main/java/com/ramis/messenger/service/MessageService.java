@@ -23,6 +23,7 @@ public class MessageService {
     private final MessageRepository messageRepository;
     private final ChatRepository chatRepository;
 
+    @Transactional(readOnly = true)
     public List<Message> getMessagesByChatId(Long chatId, int count) {
         PageRequest pageRequest = PageRequest.of(0, count, Sort.by(Sort.Direction.DESC, "createdAt"));
         List<Message> content = messageRepository.getMessagesForChat(chatId, pageRequest).getContent();
@@ -32,6 +33,9 @@ public class MessageService {
     }
 
     public Message sendMessage(User sender, Long chatId, String text) {
+        if (sender == null) {
+            throw new IllegalArgumentException("Sender can't be null");
+        }
         Chat chat = chatRepository.findById(chatId).orElseThrow(
                 () -> new EntityNotFoundException("Chat with id " + chatId + " not found")
         );

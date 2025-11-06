@@ -1,10 +1,9 @@
 package com.ramis.messenger.models;
 
 import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
-
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +24,6 @@ public class Chat {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creator_id")
-    @OnDelete(action = OnDeleteAction.SET_NULL)
     private User creator;
 
     @ManyToMany(fetch = FetchType.LAZY)

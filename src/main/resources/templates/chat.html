@@ -17,7 +17,7 @@
 <div>
     <div>
         <div th:each="chatMessage : ${messages}">
-            <strong th:text="${chatMessage.sender.username}">: </strong> <span th:text="${chatMessage.text}"></span>
+            <strong th:text="${chatMessage.sender.username} + ': '"></strong> <span th:text=" ${chatMessage.text}"></span>
         </div>
         <div>
             <form th:action="@{'/chat/' + ${chat.id}}" method="post">
@@ -29,6 +29,7 @@
             </form>
         </div>
     </div>
+    <a></a>
     <div> Участники:
         <div th:each="user : ${chat.users}">
             <span th:text="${user.username}"></span>

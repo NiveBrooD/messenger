@@ -1,0 +1,28 @@
+<databaseChangeLog
+xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <changeSet id="1762329078235-1" author="Ramis">
+        <dropForeignKeyConstraint baseTableName="messages" constraintName="messages_chat_id_fk"/>
+        <dropForeignKeyConstraint baseTableName="messages" constraintName="messages_user_id_fk"/>
+        <addForeignKeyConstraint baseTableName="messages"
+                                 baseColumnNames="user_id"
+                                 constraintName="messages_user_id_fk"
+                                 referencedTableName="users"
+                                 referencedColumnNames="id"
+                                 onDelete="SET NULL"/>
+        <addForeignKeyConstraint baseTableName="messages"
+                                 baseColumnNames="chat_id"
+                                 constraintName="messages_chat_id_fk"
+                                 referencedTableName="chats"
+                                 referencedColumnNames="id"
+                                 onDelete="SET NULL"/>
+
+    </changeSet>
+    <changeSet id="1762330110786-1" author="Ramis">
+        <dropNotNullConstraint tableName="messages" columnName="chat_id"/>
+        <dropNotNullConstraint tableName="messages" columnName="user_id"/>
+    </changeSet>
+</databaseChangeLog>

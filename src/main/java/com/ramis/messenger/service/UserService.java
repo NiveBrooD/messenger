@@ -1,27 +1,23 @@
 package com.ramis.messenger.service;
 
 import com.ramis.messenger.dto.ChatPreview;
+import com.ramis.messenger.dto.UserRegistrationTo;
 import com.ramis.messenger.models.Chat;
 import com.ramis.messenger.models.Message;
+import com.ramis.messenger.models.User;
 import com.ramis.messenger.repository.ChatRepository;
 import com.ramis.messenger.repository.MessageRepository;
 import com.ramis.messenger.repository.UserRepository;
-import com.ramis.messenger.dto.UserRegistrationTo;
-import com.ramis.messenger.models.User;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.stream.Stream;
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class UserService {
 
@@ -29,41 +25,7 @@ public class UserService {
     private final MessageRepository messageRepository;
     private final ChatRepository chatRepository;
 
-
-    public Collection<User> getAll() {
-        return userRepository.findAll();
-    }
-
-
-    public User get(Long id) {
-        return userRepository.getReferenceById(id);
-    }
-
-
-    public User save(User user) {
-        return userRepository.save(user);
-    }
-
-
-    public User updateUsernameAndPass(User user, Long userId) {
-        User userDB = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found"));
-        if (Objects.nonNull(userDB.getUsername()) && StringUtils.hasText(user.getUsername())) {
-            if (!userDB.getUsername().equals(user.getUsername())) {
-                if (!userRepository.existsByUsername(user.getUsername())) {
-                    userDB.setUsername(user.getUsername());
-                } else {
-                    throw new RuntimeException("Username already exists");
-                }
-            }
-        }
-
-        if ((user.getPassword() != null) && StringUtils.hasText(user.getPassword())) {
-            userDB.setPassword(user.getPassword());
-        }
-        return userRepository.save(userDB);
-    }
-
-
+    @Transactional
     public void delete(User user) {
         userRepository.delete(user);
     }
@@ -76,11 +38,8 @@ public class UserService {
     }
 
 
-    public List<User> saveAll(Iterable<User> entities) {
-        return userRepository.saveAll(entities);
-    }
 
-
+    @Transactional
     public void registerUser(UserRegistrationTo userRegistrationTo) {
         if (userRepository.existsByUsername(userRegistrationTo.getUsername())) {
             throw new RuntimeException("Username already exists: " + userRegistrationTo.getUsername());
@@ -92,16 +51,18 @@ public class UserService {
         userRepository.save(user);
     }
 
+    @Transactional
     public User updateUser(Long id, String newUsername, String newPassword) {
         User user = userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("User not found"));
         if (!user.getUsername().equals(newUsername) && userRepository.existsByUsername(newUsername)) {
-            throw new RuntimeException("Username already exists: " + newUsername);
+            throw new RuntimeException(String.format("Username with username: %s already exists", newUsername));
         }
         user.setUsername(newUsername);
         user.setPassword(newPassword);
         return userRepository.save(user);
     }
 
+    @Transactional
     public void addChatForUser(Long userId, Long chatId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found"));
         Chat chat = chatRepository.findById(chatId).orElseThrow(() -> new EntityNotFoundException("Chat not found"));
@@ -109,9 +70,8 @@ public class UserService {
     }
 
     public Collection<ChatPreview> getChats(User user) {
-        List<Chat> chatsForUser = userRepository.getUserChats(user.getId());
-        return chatsForUser.stream()
-                .map(this::toChatPreview)
+        Stream<Chat> chatsForUser = userRepository.getUserChats(user.getId());
+        return chatsForUser.map(this::toChatPreview)
                 .toList();
     }
 
@@ -123,11 +83,10 @@ public class UserService {
                     .orElseThrow(() -> new EntityNotFoundException("Message not found"));
             lastMessageText = lastMessage.getText();
             lastMessageSender = lastMessage.getSender().getUsername();
-        } catch (IndexOutOfBoundsException e) {
+        } catch (IndexOutOfBoundsException | EntityNotFoundException e) {
             lastMessageText = "No messages yet";
             lastMessageSender = "";
         }
         return new ChatPreview(chat.getId(), chat.getName(), lastMessageText, lastMessageSender);
     }
-
 }

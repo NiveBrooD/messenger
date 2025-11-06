@@ -45,8 +45,13 @@ public class ProfileController {
             redirectAttributes.addFlashAttribute("error", "Please confirm your deletion");
             return "redirect:/profile";
         }
-        userService.delete(user);
-        session.invalidate();
-        return "redirect:/login";
+        try {
+            userService.delete(user);
+            session.invalidate();
+            return "redirect:/login";
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/profile";
+        }
     }
 }

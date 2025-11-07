@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+                xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -20,13 +21,15 @@
             </ul>
 
             <div class="auth-section">
-                <div th:if="${session.user == null}">
+                <div sec:authorize="!isAuthenticated()">
                     <a th:href="@{/login}" class="auth-btn login-btn">🔐 Login</a>
                     <a th:href="@{/register}" class="auth-btn signup-btn">🚀 Sign Up</a>
                 </div>
 
-                <div th:if="${session.user != null}" class="user-menu">
-                    <span class="user-welcome">👋 Hello, <span th:text="${session.user.username}">User</span></span>
+                <div sec:authorize="isAuthenticated()" class="user-menu">
+                    <span class="user-welcome">👋 Hello,
+                        <span th:text="${#authentication.name}">User</span>
+                    </span>
                     <a th:href="@{/profile}" class="profile-btn">👤 Profile</a>
                     <form th:action="@{/logout}" method="post" style="display: inline;">
                         <button type="submit" class="logout-btn">🚪 Logout</button>

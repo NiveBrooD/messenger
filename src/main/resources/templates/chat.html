@@ -24,13 +24,15 @@
                 <label>
                     Отправить сообщение:
                     <input type="text" name="message" required>
+
                 </label>
                 <button type="submit">Отправить</button>
             </form>
         </div>
     </div>
     <a></a>
-    <div> Участники:
+    <div>
+        Участники:
         <div th:each="user : ${chat.users}">
             <span th:text="${user.username}"></span>
         </div>

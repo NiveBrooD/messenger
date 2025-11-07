@@ -2,6 +2,7 @@ package com.ramis.messenger.models;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.DynamicInsert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.List;
 @Builder
 @Entity
 @Table(name = "users")
+@DynamicInsert
 public class User {
 
     @Id
@@ -25,6 +27,10 @@ public class User {
 
     @Column(name = "password", nullable = false, length = 30)
     private String password;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false)
+    private Role role;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(

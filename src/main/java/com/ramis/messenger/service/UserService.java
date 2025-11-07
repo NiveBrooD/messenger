@@ -10,20 +10,33 @@ import com.ramis.messenger.repository.MessageRepository;
 import com.ramis.messenger.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.stream.Stream;
 
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class UserService {
-
+public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final MessageRepository messageRepository;
     private final ChatRepository chatRepository;
+
+    @Override
+    public UserDetails loadUserByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .map(user -> new org.springframework.security.core.userdetails.User(
+                        user.getUsername(),
+                        "{noop}" + user.getPassword(),
+                        Collections.singleton(user.getRole())
+                )).orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+    }
 
     @Transactional
     public void delete(User user) {
@@ -36,7 +49,6 @@ public class UserService {
                 () -> new EntityNotFoundException("User not found")
         );
     }
-
 
 
     @Transactional
@@ -88,5 +100,10 @@ public class UserService {
             lastMessageSender = "";
         }
         return new ChatPreview(chat.getId(), chat.getName(), lastMessageText, lastMessageSender);
+    }
+
+    public User getByUsername(String username) {
+        return userRepository.getUserByUsername(username).orElseThrow(() ->
+                new EntityNotFoundException("User not found"));
     }
 }

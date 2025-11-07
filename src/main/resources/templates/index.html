@@ -1,40 +1,20 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
 <head>
     <meta charset="UTF-8">
-    <title>Index</title>
+    <title>Welcome Page</title>
 </head>
 <body>
 <div th:insert="~{parts/header :: header}"></div>
 
-<div th:if="${message}">
-    <h1 th:text="${message}"></h1>
-</div>
-<div th:if="${error}" style="color: red">
-    <div th:text="${error}"></div>
-</div>
-
-<div> Поиск чатов
-    <form th:action="@{/chat/search}" method="post">
-        <label> Название чата:
-            <input type="text" name="name" required>
-        </label>
-        <button type="submit">Поиск</button>
-    </form>
-</div>
-<div>
-    <a th:href="@{/chat/create}">Создать чат</a>
-</div>
-
-<h2>Мои чаты</h2>
-
-<div th:if="${chats}">
-    <div th:each="chatPreview : ${chats}">
-        <a th:href="@{'chat/'+${chatPreview.id}}">
-            <h3 th:text="${chatPreview.name}"></h3>
-            <span th:text="${chatPreview.lastMessageSender + ': ' + chatPreview.lastMessagePreview}"></span>
-        </a>
-    </div>
+<h2>
+    Hello...Дружок
+</h2>
+<div sec:authorize="isAnonymous()">
+    <h3>First of all u need to Log in or Sign Up.</h3>
+    <h3>And then u can start spending your time chatting with friends :)</h3>
 </div>
 </body>
 </html>

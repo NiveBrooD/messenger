@@ -4,6 +4,7 @@ import com.ramis.messenger.dto.ChatPreview;
 import com.ramis.messenger.dto.UserRegistrationTo;
 import com.ramis.messenger.models.Chat;
 import com.ramis.messenger.models.Message;
+import com.ramis.messenger.models.Role;
 import com.ramis.messenger.models.User;
 import com.ramis.messenger.repository.ChatRepository;
 import com.ramis.messenger.repository.MessageRepository;
@@ -16,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -272,5 +274,54 @@ class UserServiceTest {
         });
         verify(userRepository, times(1)).getUserChats(user.getId());
         verify(messageRepository, times(2)).findLastMessageByChatId(anyLong());
+    }
+
+
+    @Test
+    void getByUsername_IsFound() {
+        //given
+        when(userRepository.getUserByUsername("username")).thenReturn(
+                Optional.of(
+                        User.builder().id(1L).username("username").build()));
+
+        //when
+        User user = userService.getByUsername("username");
+
+        //then
+        verify(userRepository).getUserByUsername("username");
+        assertEquals("username", user.getUsername());
+    }
+
+    @Test
+    void getByUsername_IsNotFound() {
+        //given
+        when(userRepository.getUserByUsername("username")).thenReturn(Optional.empty());
+
+        //when & then
+        Exception entityNotFoundException = assertThrows(EntityNotFoundException.class,
+                () -> userService.getByUsername("username")
+        );
+        assertEquals("User not found", entityNotFoundException.getMessage());
+    }
+
+    @Test
+    void loadUserByUsername() {
+        //given
+        User user = User.builder()
+                .username("username")
+                .password("password")
+                .role(Role.USER)
+                .build();
+        when(userRepository.findByUsername("username")).thenReturn(Optional.of(user));
+
+        //when
+        UserDetails username = userService.loadUserByUsername("username");
+
+        //then
+        assertEquals("username", username.getUsername());
+        assertEquals( "{noop}password", username.getPassword());
+        assertEquals(1, username.getAuthorities().size());
+        assertTrue(username.getAuthorities().contains(Role.USER));
+        verify(userRepository).findByUsername("username");
     }
 }

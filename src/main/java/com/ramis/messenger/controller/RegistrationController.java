@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 @Controller
 @RequiredArgsConstructor
 public class RegistrationController {
-
     private final UserService userService;
 
     @GetMapping("/register")
@@ -22,8 +21,7 @@ public class RegistrationController {
     }
 
     @PostMapping("/register")
-    public String registration(@ModelAttribute("user") UserRegistrationTo userRegistrationTo,
-                               Model model) {
+    public String registration(@ModelAttribute("user") UserRegistrationTo userRegistrationTo, Model model) {
         try {
             userService.registerUser(userRegistrationTo);
             return  "redirect:/login?registered=true";
@@ -31,6 +29,5 @@ public class RegistrationController {
             model.addAttribute("error", e.getMessage());
             return "register";
         }
-
     }
 }

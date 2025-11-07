@@ -8,7 +8,9 @@
 <div th:insert="~{parts/header :: header}"></div>
 <h2>Login</h2>
 <div th:if="${message}" th:text="${message}"/>
-<div th:if="${error}" th:text="${error}" style="color: red;"></div>
+<div th:if="${param.error}" style="color: red;">
+    <span>Не удалось войти. Мб логин и пароль неправильные, но я хз, ну скорее всего да, в бд не нашли тебя, дружок</span>
+</div>
 <form method="post" th:action="@{/login}">
     <label>
         Username:

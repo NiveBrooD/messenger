@@ -19,4 +19,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("select u.chats from User u where u.id = :userId")
     Stream<Chat> getUserChats(@Param("userId") Long userId);
+
+    Optional<User> findByUsername(String username);
+
+    Optional<User> getUserByUsername(String username);
 }

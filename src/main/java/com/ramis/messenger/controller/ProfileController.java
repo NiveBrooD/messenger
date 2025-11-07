@@ -2,6 +2,8 @@ package com.ramis.messenger.controller;
 
 import com.ramis.messenger.models.User;
 import com.ramis.messenger.service.UserService;
+import com.ramis.messenger.utils.UserSessionUtil;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -10,9 +12,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.security.Principal;
+
 @Controller
 @RequiredArgsConstructor
 public class ProfileController {
+    private final UserSessionUtil userSessionUtil;
     private final UserService userService;
 
     @GetMapping("/profile")
@@ -24,8 +29,13 @@ public class ProfileController {
     public String changeUserData(@RequestParam String username,
                                  @RequestParam String password,
                                  HttpSession session,
-                                 RedirectAttributes redirectAttributes) {
-        User user = (User) session.getAttribute("user");
+                                 RedirectAttributes redirectAttributes, Principal principal) {
+        User user;
+        try {
+            user = userSessionUtil.checkIfUserInSession(session, principal);
+        } catch (EntityNotFoundException e) {
+            return "redirect:/login";
+        }
         try {
             User updatedUser = userService.updateUser(user.getId(), username, password);
             session.setAttribute("user", updatedUser);
@@ -39,8 +49,13 @@ public class ProfileController {
     @PostMapping("/profile/delete")
     public String deleteUser(HttpSession session,
                              @RequestParam String confirmation,
-                             RedirectAttributes  redirectAttributes) {
-        User user = (User) session.getAttribute("user");
+                             RedirectAttributes  redirectAttributes, Principal principal) {
+        User user;
+        try {
+            user = userSessionUtil.checkIfUserInSession(session, principal);
+        } catch (EntityNotFoundException e) {
+            return "redirect:/login";
+        }
         if (!"Delete".equals(confirmation)) {
             redirectAttributes.addFlashAttribute("error", "Please confirm your deletion");
             return "redirect:/profile";

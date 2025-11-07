@@ -6,6 +6,7 @@ import com.ramis.messenger.models.User;
 import com.ramis.messenger.service.ChatService;
 import com.ramis.messenger.service.MessageService;
 import com.ramis.messenger.service.UserService;
+import com.ramis.messenger.utils.UserSessionUtil;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.security.Principal;
 import java.util.List;
 
 @Controller
@@ -22,6 +24,7 @@ public class ChatController {
     private final UserService userService;
     private final ChatService chatService;
     private final MessageService messageService;
+    private final UserSessionUtil userSessionUtil;
 
     @GetMapping("/chat/{chatId}")
     public String getChat(@PathVariable Long chatId,
@@ -43,32 +46,36 @@ public class ChatController {
     public String sendMessage(@PathVariable Long chatId,
                               @RequestParam String message,
                               HttpSession session,
-                              RedirectAttributes redirectAttributes) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) {
-            redirectAttributes.addFlashAttribute("error", "You need to be logged in");
-            return "redirect:/";
-        }
+                              RedirectAttributes redirectAttributes,
+                              Principal principal) {
+
         try {
+            User user = userSessionUtil.checkIfUserInSession(session, principal);
             messageService.sendMessage(user, chatId, message);
 
         } catch (EntityNotFoundException e) {
+            if (e.getMessage().equals("User not found" + principal.getName())) {
+                redirectAttributes.addFlashAttribute("error",
+                        "Session is expired. Please login again.");
+                return "redirect:/logout";
+            }
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage()); //Bad
             return "redirect:/";
         }
-        return  "redirect:/chat/" + chatId;
+        return "redirect:/chat/" + chatId;
     }
 
     @GetMapping("/chat/create")
-    public String createChat(Model model,
-                             HttpSession session,
-                             RedirectAttributes redirectAttributes) {
-        if (session.getAttribute("user") == null) {
-            redirectAttributes.addFlashAttribute("error", "You need to be logged in");
-            return "redirect:/";
+    public String createChat(HttpSession session,
+                             Principal principal) {
+
+        try {
+            userSessionUtil.checkIfUserInSession(session, principal);
+        } catch (EntityNotFoundException e) {
+            return "redirect:/logout";
         }
 
         return "chat_create";
@@ -77,12 +84,12 @@ public class ChatController {
     @PostMapping("/chat/create")
     public String createChat(HttpSession session,
                              @RequestParam String chatName,
-                             RedirectAttributes redirectAttributes) {
-        User user = (User) session.getAttribute("user");
-
-        if (user == null) {
-            redirectAttributes.addFlashAttribute("error", "Please login first");
-            return "redirect:/login";
+                             RedirectAttributes redirectAttributes, Principal principal) {
+        User user;
+        try {
+            user = userSessionUtil.checkIfUserInSession(session, principal);
+        }  catch (EntityNotFoundException e) {
+            return "redirect:/logout";
         }
         try {
             Chat chat = chatService.createChat(user, chatName);
@@ -96,8 +103,13 @@ public class ChatController {
 
     @PostMapping("/chat/join/{id}")
     public String joinToChat(HttpSession session,
-                             @PathVariable Long id) {
-        User user = (User) session.getAttribute("user");
+                             @PathVariable Long id, Principal principal) {
+        User user;
+        try {
+            user = userSessionUtil.checkIfUserInSession(session, principal);
+        }  catch (EntityNotFoundException e) {
+            return "redirect:/logout";
+        }
         try {
             userService.addChatForUser(user.getId(), id);
         } catch (RuntimeException e) {
@@ -111,10 +123,11 @@ public class ChatController {
     public String findChat(@RequestParam String name,
                            RedirectAttributes redirectAttributes,
                            Model model,
-                           HttpSession session) {
-        if (session.getAttribute("user") == null) {
-            redirectAttributes.addFlashAttribute("error", "You need to be logged in");
-            return "redirect:/";
+                           HttpSession session, Principal principal) {
+        try {
+            userSessionUtil.checkIfUserInSession(session, principal);
+        } catch (EntityNotFoundException e) {
+            return "redirect:/logout";
         }
         try {
             List<Chat> chats = chatService.getChatsByName(name);
